@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./assets/css/style.css" />
     <title>Weather Dashboard</title>
 </head>
@@ -35,16 +35,18 @@
                       <img class="weatherIcon"></img>
                   </div>
                   <div class="row">
+                      <p class="temp">Temperature:</p>
+                  </div>
+                  <div class="row">
                       <p class="humidity">Humidity:</p>
                   </div>
                   <div class="row">
                       <p class="windSpeed">Wind Speed:</p>
                   </div>
-                  <p class="uvIndex">UV Index</p>
+                  <p class="uvIndex">UV Index:</p>
               </div>
           </div>
-
-      <div class="five-day-container">
+          <div class="five-day-container">
           <h1>5-Day Forecast:</h1>
           <div class="card-row">
           </div>
@@ -53,5 +55,6 @@
     </div>
 
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
 <script src="./assets/js/script.js"></script>  
 </html>

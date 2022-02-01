@@ -1,42 +1,42 @@
-let apiKey = "89a69d56167ac6a162182ae97ce41904";
-let searchBtn = $(".searchBtn");
-let searchInput = $(".searchInput");
+var apiKey = "51abb8afd9332c0cf9dd6c8126f9470f";
+var searchBtn = $(".searchBtn");
+var searchInput = $(".searchInput");
 
-// left column
-let cityNameEl = $(".cityName");
-let weatherIconEl = $(".weatherIcon");
-let searchHistoryEl = $(".historyItems");
-let currentDateEl = $(".currentDate");
-
-// right column
-let tempEl = $(".temp");
-let humidityEl = $(".currentDate");
-let windSpeedEl = $(".uvIndex");
-let uvIndexEl = $(".uvIndex");
-let cardRow = $(".card-row");
-
-// current date
+// current date 
 var today = new Date();
 let dd = String(today.getDate()).padStart(2, '0');
 let mm = String(today.getMonth() + 1).padStart(2, '0');
 let yyyy = today.getFullYear();
 var today = mm + '/' + dd + '/' + yyyy;
 
+// Left column 
+var cityNameEl = $(".cityName");
+var currentDateEl = $(".currentDate");
+var weatherIconEl = $(".weatherIcon");
+var searchHistoryEl = $(".historyItems");
+
+// Right column 
+let tempEl = $(".temp");
+let humidityEl = $(".humidity");
+let windSpeedEl = $(".windSpeed");
+let uvIndexEl = $(".uvIndex");
+let cardRow = $(".card-row");
+
 if (JSON.parse(localStorage.getItem("searchHistory")) === null) {
     console.log("searchHistory not found")
 }else{
     console.log("searchHistory loaded into searchHistoryArr");
-    renderSearchHistory();
+    showSearchHistory();
 }
 
 searchBtn.on("click", function(e) {
     e.preventDefault();
     if (searchInput.val() === "") {
-        alert("Enter a city");
+        alert("You must enter a city");
         return;
-}
-console.log("clicked button")
-getWeather(searchInput.val());
+    }
+    console.log("clicked button")
+    getWeather(searchInput.val());
 });
 
 $(document).on("click", ".historyEntry", function() {
@@ -45,35 +45,18 @@ $(document).on("click", ".historyEntry", function() {
     getWeather(thisElement.text());
 })
 
-function renderSearchHistory(cityName) {
+function showSearchHistory(cityName) {
     searchHistoryEl.empty();
     let searchHistoryArr = JSON.parse(localStorage.getItem("searchHistory"));
     for (let i = 0; i < searchHistoryArr.length; i++) {
-       
+        
         let newListItem = $("<li>").attr("class", "historyEntry");
         newListItem.text(searchHistoryArr[i]);
         searchHistoryEl.prepend(newListItem);
     }
 }
 
-function createForecastCard(date, icon, temp, humidity) {
-
-
-    let fiveDayCardEl = $("<div>").attr("class", "five-day-card");
-    let cardDate = $("<h3>").attr("class", "card-text");
-    let cardIcon = $("<img>").attr("class", "weatherIcon");
-    let cardTemp = $("<p>").attr("class", "card-text");
-    let cardHumidity = $("<p>").attr("class", "card-text");
-
-    cardRow.append(fiveDayCardEl);
-    cardDate.text(date);
-    cardIcon.attr("src", icon);
-    cardTemp.text(`Temp: ${temp} °F`);
-    cardHumidity.text(`Humidity: ${humidity}%`);
-    fiveDayCardEl.append(cardDate, cardIcon, cardTemp, cardHumidity);
-}
-
-function renderWeatherData(cityName, cityTemp, cityHumidity, cityWindSpeed, cityWeatherIcon, uvVal) {
+function showWeatherData(cityName, cityTemp, cityHumidity, cityWindSpeed, cityWeatherIcon, uvVal) {
     cityNameEl.text(cityName)
     currentDateEl.text(`(${today})`)
     tempEl.text(`Temperature: ${cityTemp} °F`);
@@ -84,20 +67,20 @@ function renderWeatherData(cityName, cityTemp, cityHumidity, cityWindSpeed, city
 }
 
 function getWeather(desiredCity) {
-    let queryUrl = `https://api.openweathermap.org/data/2.5/onecall?lat={40.73}&lon={-73.93}&exclude={part}&appid={API Key}`
-$.ajax({
-    url: queryUrl,
-    method: "GET"
-})
-.then(function(weatherData)  {
-    let cityObj = {
-        cityName: weatherData.name,
-        cityTemp: weatherData.main.humidity,
-        cityWindSpeed: weatherData.windspeed,
-        cityUVIndex: weatherData.coord,
-        cityWeatherIconName: weatherData.weather[0].icon
-    }
-
+    let queryUrl = `https://api.openweathermap.org/data/2.5/weather?q=${desiredCity}&APPID=${apiKey}&units=imperial`;
+    $.ajax({
+        url: queryUrl,
+        method: "GET"
+    })
+    .then(function(weatherData) {
+        let cityObj = {
+            cityName: weatherData.name,
+            cityTemp: weatherData.main.temp,
+            cityHumidity: weatherData.main.humidity,
+            cityWindSpeed: weatherData.wind.speed,
+            cityUVIndex: weatherData.coord,
+            cityWeatherIconName: weatherData.weather[0].icon
+        }
     let queryUrl = `https://api.openweathermap.org/data/2.5/uvi?lat=${cityObj.cityUVIndex.lat}&lon=${cityObj.cityUVIndex.lon}&APPID=${apiKey}&units=imperial`
     $.ajax({
         url: queryUrl,
@@ -106,33 +89,33 @@ $.ajax({
     .then(function(uvData) {
         if (JSON.parse(localStorage.getItem("searchHistory")) == null) {
             let searchHistoryArr = [];
-            // Keeps user from adding the same city to the searchHistory array list more than once
+            
             if (searchHistoryArr.indexOf(cityObj.cityName) === -1) {
                 searchHistoryArr.push(cityObj.cityName);
-                // store our array of searches and save 
+                
                 localStorage.setItem("searchHistory", JSON.stringify(searchHistoryArr));
-                let renderedWeatherIcon = `https:///openweathermap.org/img/w/${cityObj.cityWeatherIconName}.png`;
-                renderWeatherData(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, renderedWeatherIcon, uvData.value);
-                renderSearchHistory(cityObj.cityName);
+                let showWeatherIcon = `https:///openweathermap.org/img/w/${cityObj.cityWeatherIconName}.png`;
+                showWeatherData(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, showWeatherIcon, uvData.value);
+                showSearchHistory(cityObj.cityName);
             }else{
                 console.log("City already in searchHistory. Not adding to history list")
-                let renderedWeatherIcon = `https:///openweathermap.org/img/w/${cityObj.cityWeatherIconName}.png`;
-                renderWeatherData(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, renderedWeatherIcon, uvData.value);
+                let showWeatherIcon = `https:///openweathermap.org/img/w/${cityObj.cityWeatherIconName}.png`;
+                showWeatherData(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, showWeatherIcon, uvData.value);
             }
         }else{
             let searchHistoryArr = JSON.parse(localStorage.getItem("searchHistory"));
-            // Keeps user from adding the same city to the searchHistory array list more than once
+            
             if (searchHistoryArr.indexOf(cityObj.cityName) === -1) {
                 searchHistoryArr.push(cityObj.cityName);
-                // store our array of searches and save 
+                
                 localStorage.setItem("searchHistory", JSON.stringify(searchHistoryArr));
-                let renderedWeatherIcon = `https:///openweathermap.org/img/w/${cityObj.cityWeatherIconName}.png`;
-                renderWeatherData(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, renderedWeatherIcon, uvData.value);
-                renderSearchHistory(cityObj.cityName);
+                let showWeatherIcon = `https:///openweathermap.org/img/w/${cityObj.cityWeatherIconName}.png`;
+                showWeatherData(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, showWeatherIcon, uvData.value);
+                showSearchHistory(cityObj.cityName);
             }else{
                 console.log("City already in searchHistory. Not adding to history list")
-                let renderedWeatherIcon = `https:///openweathermap.org/img/w/${cityObj.cityWeatherIconName}.png`;
-                renderWeatherData(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, renderedWeatherIcon, uvData.value);
+                let showWeatherIcon = `https:///openweathermap.org/img/w/${cityObj.cityWeatherIconName}.png`;
+                showWeatherData(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, showWeatherIcon, uvData.value);
             }
         }
     })
@@ -162,4 +145,21 @@ $.ajax({
             }
         })
     }   
+}
+
+function createForecastCard(date, icon, temp, humidity) {
+
+    
+    let fiveDayCardEl = $("<div>").attr("class", "five-day-card");
+    let cardDate = $("<h3>").attr("class", "card-text");
+    let cardIcon = $("<img>").attr("class", "weatherIcon");
+    let cardTemp = $("<p>").attr("class", "card-text");
+    let cardHumidity = $("<p>").attr("class", "card-text");
+
+    cardRow.append(fiveDayCardEl);
+    cardDate.text(date);
+    cardIcon.attr("src", icon);
+    cardTemp.text(`Temp: ${temp} °F`);
+    cardHumidity.text(`Humidity: ${humidity}%`);
+    fiveDayCardEl.append(cardDate, cardIcon, cardTemp, cardHumidity);
 }
